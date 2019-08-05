@@ -10,7 +10,7 @@ class Var:
 
 
 class Number:
-    def __init__(self, n):
+    def __init__(self, n: str):
         self.n = n
 
     def __repr__(self):
@@ -29,8 +29,20 @@ class Binop:
             convention.TOKEN_SUB: convention.KEYWORDS_SUB,
             convention.TOKEN_MUL: convention.KEYWORDS_MUL,
             convention.TOKEN_DIV: convention.KEYWORDS_DIV,
+            convention.TOKEN_GT: convention.KEYWORDS_GT,
+            convention.TOKEN_LT: convention.KEYWORDS_LT,
         }[self.operator]
         return f'ast.binop<operator={op}, lhs={self.lhs}, rhs={self.rhs}>'
+
+
+class If:
+    def __init__(self, cond, if_then, if_else):
+        self.cond = cond
+        self.if_then = if_then
+        self.if_else = if_else
+
+    def __repr__(self):
+        return f'ast.if<cond={self.cond}, then={self.if_then}, else={self.if_else}>'
 
 
 class FunctionDecl:

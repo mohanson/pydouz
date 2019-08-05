@@ -1,0 +1,11 @@
+def fun1():
+    1
+
+def fun2(a):
+    a
+
+def fun3(a, b):
+    a b +
+
+def main():
+    fun1() func2(1) + func3(0, 1) +

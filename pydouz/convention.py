@@ -1,4 +1,5 @@
 IDENTIFIER_LEN_LIMIT = 1 << 32
+TOKEN_BUFFER_SIZE = 4
 
 enum = iter(range(256))
 
@@ -15,8 +16,12 @@ TOKEN_ADD = next(enum)
 TOKEN_SUB = next(enum)
 TOKEN_MUL = next(enum)
 TOKEN_DIV = next(enum)
+TOKEN_GT = next(enum)
+TOKEN_LT = next(enum)
 TOKEN_DEF = next(enum)
 TOKEN_RETURN = next(enum)
+TOKEN_IF = next(enum)
+TOKEN_ELSE = next(enum)
 TOKEN_OTHER = next(enum)
 
 KEYWORDS_EOL = '\n'
@@ -29,6 +34,15 @@ KEYWORDS_ADD = '+'
 KEYWORDS_SUB = '-'
 KEYWORDS_MUL = '*'
 KEYWORDS_DIV = '/'
+KEYWORDS_GT = '>'
+KEYWORDS_LT = '<'
 KEYWORDS_DEF = 'def'
 KEYWORDS_RETURN = 'return'
+KEYWORDS_IF = 'if'
+KEYWORDS_ELSE = 'or'
 KEYWORDS_COMMENT = '#'
+
+GLOBAL_GCC = 'gcc'
+GLOBAL_LLC = 'llc'
+GLOBAL_LLI = 'lli'
+GLOBAL_LLVM_AS = 'llvm-as'
