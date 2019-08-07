@@ -1,15 +1,70 @@
-import collections
 import typing
 
 from . import common
 from . import convention
-from . import token
+from . import error
+
+
+class Token:
+    def __init__(self, kind: int, s: str):
+        self.kind = kind
+        self.s = s
+
+    def __repr__(self):
+        if self.kind == convention.TOKEN_EOF:
+            return f'Token.EOF'
+        if self.kind == convention.TOKEN_EOL:
+            return f'Token.EOL'
+        if self.kind == convention.TOKEN_SPACE:
+            return f'Token.Space({len(self.s)})'
+        if self.kind == convention.TOKEN_NUMERIC:
+            return f'Token.Numeric({self.s})'
+        if self.kind == convention.TOKEN_COMMENT:
+            return f'Token.Comment({self.s})'
+        if self.kind == convention.TOKEN_L_S_PAREN:
+            return f'Token.{convention.KEYWORDS_L_S_PAREN}'
+        if self.kind == convention.TOKEN_R_S_PAREN:
+            return f'Token.{convention.KEYWORDS_R_S_PAREN}'
+        if self.kind == convention.TOKEN_L_M_PAREN:
+            return f'Token.{convention.KEYWORDS_L_M_PAREN}'
+        if self.kind == convention.TOKEN_R_M_PAREN:
+            return f'Token.{convention.KEYWORDS_R_M_PAREN}'
+        if self.kind == convention.TOKEN_L_L_PAREN:
+            return f'Token.{convention.KEYWORDS_L_L_PAREN}'
+        if self.kind == convention.TOKEN_R_L_PAREN:
+            return f'Token.{convention.KEYWORDS_R_L_PAREN}'
+        if self.kind == convention.TOKEN_ADD:
+            return f'Token.{convention.KEYWORDS_ADD}'
+        if self.kind == convention.TOKEN_SUB:
+            return f'Token.{convention.KEYWORDS_SUB}'
+        if self.kind == convention.TOKEN_MUL:
+            return f'Token.{convention.KEYWORDS_MUL}'
+        if self.kind == convention.TOKEN_DIV:
+            return f'Token.{convention.KEYWORDS_DIV}'
+        if self.kind == convention.TOKEN_GT:
+            return f'Token.{convention.KEYWORDS_GT}'
+        if self.kind == convention.TOKEN_LT:
+            return f'Token.{convention.KEYWORDS_LT}'
+        if self.kind == convention.TOKEN_COMMA:
+            return f'Token.{convention.KEYWORDS_COMMA}'
+        if self.kind == convention.TOKEN_COLON:
+            return f'Token.{convention.KEYWORDS_COLON}'
+        if self.kind == convention.TOKEN_SEMICOLON:
+            return f'Token.{convention.KEYWORDS_SEMICOLON}'
+        if self.kind == convention.TOKEN_IDENTIFIER:
+            return f'Token.Identifier({self.s})'
+        if self.kind == convention.TOKEN_DEF:
+            return f'Token.Def'
+        if self.kind == convention.TOKEN_IF:
+            return f'Token.If'
+        if self.kind == convention.TOKEN_ELSE:
+            return f'Token.Else'
+        raise error.Error('')
 
 
 class Tokenization:
     def __init__(self, reader: typing.TextIO):
         self.reader = reader
-        self.buffer = collections.deque([], convention.TOKEN_BUFFER_SIZE)
         self.c = ''
 
     def iter(self):
@@ -19,138 +74,160 @@ class Tokenization:
             return
         yield from self.iter()
 
-    def next(self):
+    def next(self) -> Token:
         t = self.take()
-        # Remove all spaces that are not at the beginning of the line
-        if t.kind == convention.TOKEN_SPACE:
-            if self.buffer[-1].kind != convention.TOKEN_EOL:
-                return self.next()
-        # Remove extra line breaks
-        if t.kind == convention.TOKEN_EOL:
-            if self.buffer[-1].kind == convention.TOKEN_EOL:
-                return self.next()
-        self.buffer.append(t)
+        if t.kind in [
+            convention.TOKEN_EOL,
+            convention.TOKEN_SPACE,
+            convention.TOKEN_COMMENT,
+        ]:
+            return self.next()
         return t
 
-    def back(self, i: int):
-        return self.buffer[convention.TOKEN_BUFFER_SIZE - i]
-
-    def take(self):
+    def take(self) -> Token:
         if not self.c:
             self.c = self.reader.read(1)
 
         # EOF
         if not self.c:
-            return token.Token(convention.TOKEN_EOF, '')
+            return Token(convention.TOKEN_EOF, '')
+
+        # EOL
+        if self.c == convention.KEYWORDS_EOL:
+            self.c = self.reader.read(1)
+            return Token(convention.TOKEN_EOL, convention.KEYWORDS_EOL)
 
         s = ''
 
         # SPACE
         if self.c == convention.KEYWORDS_SPACE:
             s += self.c
-            for _ in common.Long():
+            for _ in common.Loop():
                 self.c = self.reader.read(1)
                 if self.c == convention.KEYWORDS_SPACE:
                     s += self.c
                     continue
                 break
-            return token.Token(convention.TOKEN_SPACE, s)
-
-        # EOL
-        if self.c == convention.KEYWORDS_EOL:
-            s += self.c
-            self.c = self.reader.read(1)
-            return token.Token(convention.TOKEN_EOL, s)
+            return Token(convention.TOKEN_SPACE, s)
 
         # Identifier && keywords
         if self.c.isalpha():
-            s = self.c
-            for _ in common.Long():
+            s += self.c
+            for _ in common.Loop():
                 self.c = self.reader.read(1)
                 if self.c.isalnum():
                     s += self.c
                     continue
                 break
 
+            # Def
             if s == convention.KEYWORDS_DEF:
-                return token.Token(convention.TOKEN_DEF, s)
-            if s == convention.KEYWORDS_RETURN:
-                return token.Token(convention.TOKEN_RETURN, s)
+                return Token(convention.TOKEN_DEF, convention.KEYWORDS_DEF)
+            # If
             if s == convention.KEYWORDS_IF:
-                return token.Token(convention.TOKEN_IF, s)
+                return Token(convention.TOKEN_IF, s)
+            # Else
             if s == convention.KEYWORDS_ELSE:
-                return token.Token(convention.TOKEN_ELSE, s)
-            return token.Token(convention.TOKEN_IDENTIFIER, s)
+                return Token(convention.TOKEN_ELSE, s)
+            return Token(convention.TOKEN_IDENTIFIER, s)
 
         # Number
         if self.c.isdigit():
             s += self.c
             self.c = self.reader.read(1)
-            for _ in common.Long():
-                if self.c.isdigit():
+            for _ in common.Loop():
+                if self.c.isalnum():
                     s += self.c
                     self.c = self.reader.read(1)
                     continue
                 break
-            return token.Token(convention.TOKEN_NUMBER, s)
+            if s.startswith('0x'):
+                return Token(convention.TOKEN_NUMERIC, int(s, 16))
+            return Token(convention.TOKEN_NUMERIC, int(s))
 
         # Comment
         if self.c == convention.KEYWORDS_COMMENT:
-            for _ in common.Long():
+            for _ in common.Loop():
                 self.c = self.reader.read(1)
                 if self.c == convention.KEYWORDS_EOL:
                     break
+                s += self.c
                 continue
-            return self.take()
+            return Token(convention.TOKEN_COMMENT, s)
 
-        # L_Paren:
-        if self.c == convention.KEYWORDS_L_PAREN:
+        # L_S_Paren:
+        if self.c == convention.KEYWORDS_L_S_PAREN:
             self.c = self.reader.read(1)
-            return token.Token(convention.TOKEN_L_PARAN, convention.KEYWORDS_L_PAREN)
+            return Token(convention.TOKEN_L_S_PAREN, convention.KEYWORDS_L_S_PAREN)
 
-        # R_Paren:
-        if self.c == convention.KEYWORDS_R_PAREN:
+        # R_S_Paren:
+        if self.c == convention.KEYWORDS_R_S_PAREN:
             self.c = self.reader.read(1)
-            return token.Token(convention.TOKEN_R_PARAN, convention.KEYWORDS_R_PAREN)
+            return Token(convention.TOKEN_R_S_PAREN, convention.KEYWORDS_R_S_PAREN)
 
-        # Comma
-        if self.c == convention.KEYWORDS_COMMA:
+        # L_M_Paren:
+        if self.c == convention.KEYWORDS_L_M_PAREN:
             self.c = self.reader.read(1)
-            return token.Token(convention.TOKEN_COMMA, convention.KEYWORDS_COMMA)
+            return Token(convention.TOKEN_L_M_PAREN, convention.KEYWORDS_L_M_PAREN)
 
-        # Colon
-        if self.c == convention.KEYWORDS_COLON:
+        # R_M_Paren:
+        if self.c == convention.KEYWORDS_R_M_PAREN:
             self.c = self.reader.read(1)
-            return token.Token(convention.TOKEN_COLON, convention.KEYWORDS_COLON)
+            return Token(convention.TOKEN_R_M_PAREN, convention.KEYWORDS_R_M_PAREN)
+
+        # L_L_Paren:
+        if self.c == convention.KEYWORDS_L_L_PAREN:
+            self.c = self.reader.read(1)
+            return Token(convention.TOKEN_L_L_PAREN, convention.KEYWORDS_L_L_PAREN)
+
+        # R_S_Paren:
+        if self.c == convention.KEYWORDS_R_L_PAREN:
+            self.c = self.reader.read(1)
+            return Token(convention.TOKEN_R_L_PAREN, convention.KEYWORDS_R_L_PAREN)
 
         # Add
         if self.c == convention.KEYWORDS_ADD:
             self.c = self.reader.read(1)
-            return token.Token(convention.TOKEN_ADD, convention.KEYWORDS_ADD)
+            return Token(convention.TOKEN_ADD, convention.KEYWORDS_ADD)
 
         # Sub
         if self.c == convention.KEYWORDS_SUB:
             self.c = self.reader.read(1)
-            return token.Token(convention.TOKEN_SUB, convention.KEYWORDS_SUB)
+            return Token(convention.TOKEN_SUB, convention.KEYWORDS_SUB)
 
         # Mul
         if self.c == convention.KEYWORDS_MUL:
             self.c = self.reader.read(1)
-            return token.Token(convention.TOKEN_MUL, convention.KEYWORDS_MUL)
+            return Token(convention.TOKEN_MUL, convention.KEYWORDS_MUL)
 
         # Div
         if self.c == convention.KEYWORDS_DIV:
             self.c = self.reader.read(1)
-            return token.Token(convention.TOKEN_DIV, convention.KEYWORDS_DIV)
+            return Token(convention.TOKEN_DIV, convention.KEYWORDS_DIV)
+
+        # Comma
+        if self.c == convention.KEYWORDS_COMMA:
+            self.c = self.reader.read(1)
+            return Token(convention.TOKEN_COMMA, convention.KEYWORDS_COMMA)
+
+        # Colon
+        if self.c == convention.KEYWORDS_COLON:
+            self.c = self.reader.read(1)
+            return Token(convention.TOKEN_COLON, convention.KEYWORDS_COLON)
+
+        # SEMICOLON
+        if self.c == convention.KEYWORDS_SEMICOLON:
+            self.c = self.reader.read(1)
+            return Token(convention.TOKEN_SEMICOLON, convention.KEYWORDS_SEMICOLON)
 
         # GT
         if self.c == convention.KEYWORDS_GT:
             self.c = self.reader.read(1)
-            return token.Token(convention.TOKEN_GT, convention.KEYWORDS_GT)
+            return Token(convention.TOKEN_GT, convention.KEYWORDS_GT)
 
         # LT
         if self.c == convention.KEYWORDS_LT:
             self.c = self.reader.read(1)
-            return token.Token(convention.TOKEN_LT, convention.KEYWORDS_LT)
+            return Token(convention.TOKEN_LT, convention.KEYWORDS_LT)
 
-        raise ''
+        raise error.Error('SyntaxError')

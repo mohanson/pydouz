@@ -1,0 +1,11 @@
+def fib(n) {
+    if n 3 < {
+        n;
+    } or {
+        fib(n 1 -) fib(n 2 -) +;
+    };
+}
+
+def main() {
+    fib(10); # Exit with code 89
+}

@@ -1,24 +1,34 @@
+import typing
+
 from . import convention
 
 
-class Var:
-    def __init__(self, name):
+class Base:
+    pass
+
+
+class Expression(Base):
+    pass
+
+
+class Identifier(Expression):
+    def __init__(self, name: str):
         self.name = name
 
     def __repr__(self):
-        return f'ast.var<name = {self.name}>'
+        return f'Ast.Identifier<name={self.name}>'
 
 
-class Number:
-    def __init__(self, n: str):
+class Numeric(Expression):
+    def __init__(self, n: int):
         self.n = n
 
     def __repr__(self):
-        return f'ast.number<n = {self.n}>'
+        return f'Ast.Numeric<n={self.n}>'
 
 
-class Binop:
-    def __init__(self, operator, lhs, rhs):
+class BinaryOperation(Expression):
+    def __init__(self, operator: int, lhs: Base, rhs: Base):
         self.operator = operator
         self.lhs = lhs
         self.rhs = rhs
@@ -32,42 +42,49 @@ class Binop:
             convention.TOKEN_GT: convention.KEYWORDS_GT,
             convention.TOKEN_LT: convention.KEYWORDS_LT,
         }[self.operator]
-        return f'ast.binop<operator={op}, lhs={self.lhs}, rhs={self.rhs}>'
+        return f'Ast.BinaryOperation<operator={op}, lhs={self.lhs}, rhs={self.rhs}>'
 
 
-class If:
-    def __init__(self, cond, if_then, if_else):
+class Block(Base):
+    def __init__(self, data: typing.List[Expression]):
+        self.data = data
+
+    def __repr__(self):
+        return f'Ast.Block<data={self.data}>'
+
+
+class If(Expression):
+    def __init__(self, cond: Expression, if_then: Block, if_else: Block):
         self.cond = cond
         self.if_then = if_then
         self.if_else = if_else
 
     def __repr__(self):
-        return f'ast.if<cond={self.cond}, then={self.if_then}, else={self.if_else}>'
+        return f'Ast.If<cond={self.cond}, then={self.if_then}, else={self.if_else}>'
 
 
-class FunctionDecl:
-    def __init__(self, func_name, args):
+class FunctionDecl(Base):
+    def __init__(self, func_name: str, args: typing.List[Identifier]):
         self.func_name = func_name
         self.args = args
 
     def __repr__(self):
-        args = '[' + ', '.join([str(e) for e in self.args]) + ']'
-        return f'ast.function_decl<func_name = {self.func_name} args = {args}>'
+        return f'Ast.FunctionDecl<func_name={self.func_name}, args={self.args}>'
 
 
-class FunctionDefn:
-    def __init__(self, func_decl: FunctionDecl, func_body):
+class FunctionDefn(Base):
+    def __init__(self, func_decl: FunctionDecl, body: Base):
         self.func_decl = func_decl
-        self.func_body = func_body
+        self.body = body
 
     def __repr__(self):
-        return f'ast.function_defn<func_decl = {self.func_decl}, func_body = {self.func_body}>'
+        return f'Ast.FunctionDefn<func_decl={self.func_decl}, body={self.body}>'
 
 
-class FunctionCall:
-    def __init__(self, func_name, args):
+class FunctionCall(Expression):
+    def __init__(self, func_name: str, args: typing.List[Base]):
         self.func_name = func_name
         self.args = args
 
     def __repr__(self):
-        return f'ast.function_call<func_name = {self.func_name} args = [{", ".join([str(e) for e in self.args])}]>'
+        return f'Ast.FunctionCall<func_name={self.func_name} args={self.args}>'
