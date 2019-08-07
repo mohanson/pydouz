@@ -1,5 +1,6 @@
 # The Douz Programming Language
 
+- [Install](#Install)
 - [Example](#Example)
 - [Introduction](#Introduction)
 - [Lexical elements](#Lexical-elements)
@@ -16,12 +17,15 @@
 - [Cross-Compile](#Cross-Compile)
 - [Licences](#Licences)
 
-# Example
+
+# Install
 
 ```
 $ apt install -y llvm        # Install LLVM
 $ python3 setup.py develop   # Install Front End of Douz
 ```
+
+# Example
 
 ```
 $ cat examples/fib.dz
