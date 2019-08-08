@@ -166,7 +166,7 @@ def test_expression_if():
     assert isinstance(a.if_else, pydouz.ast.Block)
 
 
-def test_block():
+def test_block_0():
     s = textwrap.dedent('''
     {
         a b +;
@@ -178,6 +178,20 @@ def test_block():
     a = p.next()
     assert isinstance(a.data[0], pydouz.ast.BinaryOperation)
     assert isinstance(a.data[1], pydouz.ast.BinaryOperation)
+
+
+def test_block_1():
+    s = textwrap.dedent('''
+    {
+        let a = 1 1 +;
+        a;
+    }
+    ''')
+    t = pydouz.tokenization.Tokenization(io.StringIO(s))
+    p = pydouz.parser.Parser(t)
+    a = p.next()
+    assert isinstance(a.data[0], pydouz.ast.Let)
+    assert isinstance(a.data[1], pydouz.ast.Identifier)
 
 
 def test_func_defn():
@@ -194,3 +208,15 @@ def test_func_defn():
     assert a.func_decl.args[0].name == 'a'
     assert a.func_decl.args[1].name == 'b'
     assert isinstance(a.body, pydouz.ast.Block)
+
+
+def test_let():
+    s = textwrap.dedent('''
+    let a = 1 1 +;
+    ''')
+    t = pydouz.tokenization.Tokenization(io.StringIO(s))
+    p = pydouz.parser.Parser(t)
+    a = p.next()
+    assert isinstance(a, pydouz.ast.Let)
+    assert a.identifier.name == 'a'
+    assert a.expression.operator == pydouz.convention.TOKEN_ADD

@@ -18,6 +18,7 @@ TOKEN_MUL = next(enum)
 TOKEN_DIV = next(enum)
 TOKEN_GT = next(enum)
 TOKEN_LT = next(enum)
+TOKEN_EQUAL = next(enum)
 TOKEN_COMMA = next(enum)
 TOKEN_COLON = next(enum)
 TOKEN_SEMICOLON = next(enum)
@@ -25,6 +26,7 @@ TOKEN_IDENTIFIER = next(enum)
 TOKEN_DEF = next(enum)
 TOKEN_IF = next(enum)
 TOKEN_ELSE = next(enum)
+TOKEN_LET = next(enum)
 
 KEYWORDS_EOL = '\n'
 KEYWORDS_SPACE = ' '
@@ -41,9 +43,11 @@ KEYWORDS_MUL = '*'
 KEYWORDS_DIV = '/'
 KEYWORDS_GT = '>'
 KEYWORDS_LT = '<'
+KEYWORDS_EQUAL = '='
 KEYWORDS_COMMA = ','
 KEYWORDS_COLON = ':'
 KEYWORDS_SEMICOLON = ';'
 KEYWORDS_DEF = 'def'
 KEYWORDS_IF = 'if'
 KEYWORDS_ELSE = 'or'
+KEYWORDS_LET = 'let'

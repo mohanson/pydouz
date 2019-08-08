@@ -92,6 +92,23 @@ class Parser:
                 return self.stack.pop()
         raise error.Error('SyntaxError')
 
+    def parse_let(self) -> ast.Let:
+        self.t = self.tokenization.next()
+        # Identifier
+        identifier = self.parse_identifier()
+        # =
+        if self.t.kind != convention.TOKEN_EQUAL:
+            raise error.Error('SyntaxError')
+        # Expression
+        self.t = self.tokenization.next()
+        expression = self.parse_expression()
+        return ast.Let(identifier, expression)
+
+    def parse_statement(self) -> ast.Statement:
+        if self.t.kind == convention.TOKEN_LET:
+            return self.parse_let()
+        raise error.Error('SyntaxError')
+
     def parse_block(self) -> ast.Block:
         self.t = self.tokenization.next()
         b = []
@@ -100,8 +117,8 @@ class Parser:
             if self.t.kind == convention.TOKEN_R_L_PAREN:
                 self.t = self.tokenization.next()
                 break
-            # Expression
-            e = self.parse_expression()
+            # Statement or Expression
+            e = self.next()
             b.append(e)
             # ;
             if self.t.kind != convention.TOKEN_SEMICOLON:
@@ -157,6 +174,10 @@ class Parser:
             convention.TOKEN_NUMERIC,
         ]:
             return self.parse_expression()
+        if self.t.kind in [
+            convention.TOKEN_LET,
+        ]:
+            return self.parse_statement()
         if self.t.kind == convention.TOKEN_L_L_PAREN:
             return self.parse_block()
         if self.t.kind == convention.TOKEN_DEF:

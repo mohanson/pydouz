@@ -77,11 +77,12 @@ Sample: `Alice`, `Bob02`
 
 ## Keywords
 
-| Keyword | Description                      |
-|---------|----------------------------------|
-| def     | Define a function                |
-| if      | Starting of conditional judgment |
-| or      | The else branch for conditional  |
+| Keyword | Description                         |
+|---------|-------------------------------------|
+| def     | Define a function                   |
+| if      | Starting of conditional judgment    |
+| or      | The else branch for conditional     |
+| let     | Assignment. Usually paired with `=` |
 
 ## Operators And Punctuation
 

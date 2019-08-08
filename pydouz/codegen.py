@@ -26,6 +26,8 @@ class CodeGen:
     def code_base(self, a: ast.Base):
         if isinstance(a, ast.Expression):
             return self.code_expression(a)
+        if isinstance(a, ast.Statement):
+            return self.code_statement(a)
         if isinstance(a, ast.FunctionDefn):
             return self.code_function_defn(a)
         raise error.Error('SyntaxError')
@@ -41,6 +43,11 @@ class CodeGen:
             return self.code_function_call(a)
         if isinstance(a, ast.If):
             return self.code_if(a)
+        raise error.Error('SyntaxError')
+
+    def code_statement(self, a: ast.Statement):
+        if isinstance(a, ast.Let):
+            return self.code_let(a)
         raise error.Error('SyntaxError')
 
     def code_identifier(self, a: ast.Identifier):
@@ -78,6 +85,14 @@ class CodeGen:
         out_phi.add_incoming(if_then_out, if_then_block)
         out_phi.add_incoming(if_else_out, if_else_block)
         return out_phi
+
+    def code_let(self, a: ast.Let):
+        expression = self.code_expression(a.expression)
+        ptr_var = self.ir_builder.alloca(u32)
+        self.ir_builder.store(expression, ptr_var)
+        var = self.ir_builder.load(ptr_var)
+        self.named_values[a.identifier.name] = var
+        return var
 
     def code_block(self, a: ast.Block):
         for e in a.data:

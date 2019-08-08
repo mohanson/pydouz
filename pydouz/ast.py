@@ -11,6 +11,10 @@ class Expression(Base):
     pass
 
 
+class Statement(Base):
+    pass
+
+
 class Identifier(Expression):
     def __init__(self, name: str):
         self.name = name
@@ -46,7 +50,7 @@ class BinaryOperation(Expression):
 
 
 class Block(Base):
-    def __init__(self, data: typing.List[Expression]):
+    def __init__(self, data: typing.List[Base]):
         self.data = data
 
     def __repr__(self):
@@ -61,6 +65,15 @@ class If(Expression):
 
     def __repr__(self):
         return f'Ast.If<cond={self.cond}, then={self.if_then}, else={self.if_else}>'
+
+
+class Let(Statement):
+    def __init__(self, identifier: Identifier, expression: Expression):
+        self.identifier = identifier
+        self.expression = expression
+
+    def __repr__(self):
+        return f'Ast.Let<identifier={self.identifier}, expression={self.expression}>'
 
 
 class FunctionDecl(Base):

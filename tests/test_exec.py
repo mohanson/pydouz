@@ -71,3 +71,18 @@ def test_fib():
     cfunc = ctypes.CFUNCTYPE(ctypes.c_uint, ctypes.c_uint)(func_ptr)
     assert cfunc(10) == 89
     assert cfunc(9) == 55
+
+
+def test_let():
+    engine = make(textwrap.dedent('''
+    def fib(n) {
+        let a = n 2 *;
+        let b = a 1 -;
+        let c = a b +;
+        c;
+    }
+    '''))
+    func_ptr = engine.get_function_address('fib')
+    cfunc = ctypes.CFUNCTYPE(ctypes.c_uint, ctypes.c_uint)(func_ptr)
+    assert cfunc(1) == 3
+    assert cfunc(2) == 7

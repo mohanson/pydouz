@@ -45,6 +45,8 @@ class Token:
             return f'Token.{convention.KEYWORDS_GT}'
         if self.kind == convention.TOKEN_LT:
             return f'Token.{convention.KEYWORDS_LT}'
+        if self.kind == convention.TOKEN_EQUAL:
+            return f'Token.{convention.KEYWORDS_EQUAL}{convention.KEYWORDS_EQUAL}'
         if self.kind == convention.TOKEN_COMMA:
             return f'Token.{convention.KEYWORDS_COMMA}'
         if self.kind == convention.TOKEN_COLON:
@@ -59,6 +61,8 @@ class Token:
             return f'Token.If'
         if self.kind == convention.TOKEN_ELSE:
             return f'Token.Else'
+        if self.kind == convention.TOKEN_LET:
+            return f'Token.Let'
         raise error.Error('')
 
 
@@ -129,6 +133,9 @@ class Tokenization:
             # Else
             if s == convention.KEYWORDS_ELSE:
                 return Token(convention.TOKEN_ELSE, s)
+            # Let
+            if s == convention.KEYWORDS_LET:
+                return Token(convention.TOKEN_LET, s)
             return Token(convention.TOKEN_IDENTIFIER, s)
 
         # Number
@@ -229,5 +236,10 @@ class Tokenization:
         if self.c == convention.KEYWORDS_LT:
             self.c = self.reader.read(1)
             return Token(convention.TOKEN_LT, convention.KEYWORDS_LT)
+
+        # Equal
+        if self.c == convention.KEYWORDS_EQUAL:
+            self.c = self.reader.read(1)
+            return Token(convention.TOKEN_EQUAL, '=')
 
         raise error.Error('SyntaxError')
