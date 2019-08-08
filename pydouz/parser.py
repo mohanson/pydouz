@@ -104,9 +104,37 @@ class Parser:
         expression = self.parse_expression()
         return ast.Let(identifier, expression)
 
+    def parse_ptr(self) -> ast.Ptr:
+        self.t = self.tokenization.next()
+        # Identifier
+        identifier = self.parse_identifier()
+        # =
+        if self.t.kind != convention.TOKEN_EQUAL:
+            raise error.Error('SyntaxError')
+        # Expression
+        self.t = self.tokenization.next()
+        expression = self.parse_expression()
+        return ast.Ptr(identifier, expression)
+
+    def parse_for(self) -> ast.For:
+        self.t = self.tokenization.next()
+        # Condition
+        cond = self.parse_expression()
+        # ;
+        if self.t.kind != convention.TOKEN_SEMICOLON:
+            raise error.Error('SyntaxError')
+        self.t = self.tokenization.next()
+        # Body
+        body = self.parse_block()
+        return ast.For(cond, body)
+
     def parse_statement(self) -> ast.Statement:
         if self.t.kind == convention.TOKEN_LET:
             return self.parse_let()
+        if self.t.kind == convention.TOKEN_FOR:
+            return self.parse_for()
+        if self.t.kind == convention.TOKEN_PTR:
+            return self.parse_ptr()
         raise error.Error('SyntaxError')
 
     def parse_block(self) -> ast.Block:
@@ -176,6 +204,8 @@ class Parser:
             return self.parse_expression()
         if self.t.kind in [
             convention.TOKEN_LET,
+            convention.TOKEN_PTR,
+            convention.TOKEN_FOR,
         ]:
             return self.parse_statement()
         if self.t.kind == convention.TOKEN_L_L_PAREN:

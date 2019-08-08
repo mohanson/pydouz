@@ -76,6 +76,24 @@ class Let(Statement):
         return f'Ast.Let<identifier={self.identifier}, expression={self.expression}>'
 
 
+class Ptr(Statement):
+    def __init__(self, identifier: Identifier, expression: Expression):
+        self.identifier = identifier
+        self.expression = expression
+
+    def __repr__(self):
+        return f'Ast.Ptr<identifier={self.identifier}, expression={self.expression}>'
+
+
+class For(Statement):
+    def __init__(self, cond: Expression, body: Block):
+        self.cond = cond
+        self.body = body
+
+    def __repr__(self):
+        return f'Ast.For<cond={self.cond}, body={self.body}>'
+
+
 class FunctionDecl(Base):
     def __init__(self, func_name: str, args: typing.List[Identifier]):
         self.func_name = func_name

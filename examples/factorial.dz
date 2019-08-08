@@ -1,0 +1,18 @@
+# In mathematics, the factorial of a positive integer n, denoted by n!, is the product of all positive integers less
+# than or equal to n
+#
+# F(n) = n × (n − 1) × (n − 2) . . . × 3 × 2 × 1
+
+def factorial(n) {
+    ptr i = 1;
+    ptr s = 1;
+    for i n 1 + <; {
+        ptr s = s i *;
+        ptr i = i 1 +;
+    };
+    s;
+}
+
+def main() {
+    factorial(5); # Exit with code 120
+}

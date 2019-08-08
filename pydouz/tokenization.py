@@ -63,6 +63,10 @@ class Token:
             return f'Token.Else'
         if self.kind == convention.TOKEN_LET:
             return f'Token.Let'
+        if self.kind == convention.TOKEN_PTR:
+            return f'Token.Ptr'
+        if self.kind == convention.TOKEN_FOR:
+            return f'Token.For'
         raise error.Error('')
 
 
@@ -136,6 +140,12 @@ class Tokenization:
             # Let
             if s == convention.KEYWORDS_LET:
                 return Token(convention.TOKEN_LET, s)
+            # Ptr
+            if s == convention.KEYWORDS_PTR:
+                return Token(convention.TOKEN_PTR, s)
+            # For
+            if s == convention.KEYWORDS_FOR:
+                return Token(convention.TOKEN_FOR, s)
             return Token(convention.TOKEN_IDENTIFIER, s)
 
         # Number

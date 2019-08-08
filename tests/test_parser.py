@@ -220,3 +220,31 @@ def test_let():
     assert isinstance(a, pydouz.ast.Let)
     assert a.identifier.name == 'a'
     assert a.expression.operator == pydouz.convention.TOKEN_ADD
+
+
+def test_for_0():
+    s = textwrap.dedent('''
+    for i 1 <; {
+        0;
+    };
+    ''')
+    t = pydouz.tokenization.Tokenization(io.StringIO(s))
+    p = pydouz.parser.Parser(t)
+    a = p.next()
+    assert isinstance(a, pydouz.ast.For)
+    assert isinstance(a.cond, pydouz.ast.BinaryOperation)
+    assert isinstance(a.body, pydouz.ast.Block)
+
+
+def test_for_1():
+    s = textwrap.dedent('''
+    for i n <; {
+        let s = s i +;
+    };
+    ''')
+    t = pydouz.tokenization.Tokenization(io.StringIO(s))
+    p = pydouz.parser.Parser(t)
+    a = p.next()
+    assert isinstance(a, pydouz.ast.For)
+    assert isinstance(a.cond, pydouz.ast.BinaryOperation)
+    assert isinstance(a.body, pydouz.ast.Block)

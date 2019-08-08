@@ -27,6 +27,8 @@ TOKEN_DEF = next(enum)
 TOKEN_IF = next(enum)
 TOKEN_ELSE = next(enum)
 TOKEN_LET = next(enum)
+TOKEN_PTR = next(enum)
+TOKEN_FOR = next(enum)
 
 KEYWORDS_EOL = '\n'
 KEYWORDS_SPACE = ' '
@@ -51,3 +53,5 @@ KEYWORDS_DEF = 'def'
 KEYWORDS_IF = 'if'
 KEYWORDS_ELSE = 'or'
 KEYWORDS_LET = 'let'
+KEYWORDS_PTR = 'ptr'
+KEYWORDS_FOR = 'for'

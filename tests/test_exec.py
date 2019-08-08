@@ -12,6 +12,7 @@ def make(code):
     for e in p.iter():
         c.code_base(e)
     llvm_ir = c.text()
+    print(llvm_ir)
 
     driver = pydouz.driver.Lite()
     driver.compile_ir(llvm_ir)
@@ -75,14 +76,33 @@ def test_fib():
 
 def test_let():
     engine = make(textwrap.dedent('''
-    def fib(n) {
-        let a = n 2 *;
-        let b = a 1 -;
-        let c = a b +;
-        c;
+    def main(n) {
+        let a = n;
+        let a = a 1 +;
+        let b = a;
+        b;
     }
     '''))
-    func_ptr = engine.get_function_address('fib')
+    func_ptr = engine.get_function_address('main')
     cfunc = ctypes.CFUNCTYPE(ctypes.c_uint, ctypes.c_uint)(func_ptr)
-    assert cfunc(1) == 3
-    assert cfunc(2) == 7
+    assert cfunc(1) == 2
+    assert cfunc(2) == 3
+
+
+def test_for():
+    engine = make(textwrap.dedent('''
+    def sum(n) {
+        ptr i = 0;
+        ptr s = 0;
+        for i n <; {
+            ptr s = s i +;
+            ptr i = i 1 +;
+        };
+        s;
+    }
+    '''))
+    func_ptr = engine.get_function_address('sum')
+    cfunc = ctypes.CFUNCTYPE(ctypes.c_uint, ctypes.c_uint)(func_ptr)
+    assert cfunc(4) == 6
+    assert cfunc(5) == 10
+    assert cfunc(6) == 15

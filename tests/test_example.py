@@ -15,3 +15,8 @@ def make(path):
 def test_fib():
     status, _ = make('./examples/fib.dz')
     assert status == 89
+
+
+def test_factorial():
+    status, _ = make('./examples/factorial.dz')
+    assert status == 120

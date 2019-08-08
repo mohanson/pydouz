@@ -48,10 +48,17 @@ class CodeGen:
     def code_statement(self, a: ast.Statement):
         if isinstance(a, ast.Let):
             return self.code_let(a)
+        if isinstance(a, ast.Ptr):
+            return self.code_ptr(a)
+        if isinstance(a, ast.For):
+            return self.code_for(a)
         raise error.Error('SyntaxError')
 
     def code_identifier(self, a: ast.Identifier):
-        return self.named_values[a.name]
+        r = self.named_values[a.name]
+        if isinstance(r, llvmlite.ir.instructions.AllocaInstr):
+            return self.ir_builder.load(r)
+        return r
 
     def code_numeric(self, a: ast.Numeric):
         return u32(a.n)
@@ -94,6 +101,32 @@ class CodeGen:
         self.named_values[a.identifier.name] = var
         return var
 
+    def code_ptr(self, a: ast.Ptr):
+        expression = self.code_expression(a.expression)
+        if a.identifier.name in self.named_values:
+            ptr_var = self.named_values[a.identifier.name]
+        else:
+            ptr_var = self.ir_builder.alloca(u32)
+        self.ir_builder.store(expression, ptr_var)
+        self.named_values[a.identifier.name] = ptr_var
+        return ptr_var
+
+    def code_for(self, a: ast.For):
+        loop_body_block = self.ir_builder.append_basic_block('loop.body')
+        loop_exit_block = self.ir_builder.append_basic_block('loop.exit')
+        # First check
+        loop_header = self.code_expression(a.cond)
+        self.ir_builder.cbranch(loop_header, loop_body_block, loop_exit_block)
+        # Body
+        self.ir_builder.position_at_start(loop_body_block)
+        for e in a.body.data:
+            self.code_base(e)
+        # At the end of body, check the condition again
+        loop_header = self.code_expression(a.cond)
+        self.ir_builder.cbranch(loop_header, loop_body_block, loop_exit_block)
+        self.ir_builder.position_at_start(loop_exit_block)
+        return loop_header
+
     def code_block(self, a: ast.Block):
         for e in a.data:
             r = self.code_base(e)
@@ -109,7 +142,7 @@ class CodeGen:
         func = llvmlite.ir.Function(self.module, fnty, name=a.func_decl.func_name)
         for i, e in enumerate(a.func_decl.args):
             func.args[i].name = e.name
-        b = func.append_basic_block()
+        b = func.append_basic_block('body')
         self.ir_builder = llvmlite.ir.IRBuilder(b)
         for i, e in enumerate(a.func_decl.args):
             self.named_values[e.name] = func.args[i]
