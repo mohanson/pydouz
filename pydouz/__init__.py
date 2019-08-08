@@ -1,4 +1,5 @@
 from . import ast
+from . import cmdline
 from . import codegen
 from . import common
 from . import convention

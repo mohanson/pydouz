@@ -7,7 +7,7 @@ with open(os.path.join(root, 'README.md'), encoding='utf-8') as f:
 
 setuptools.setup(
     name='pydouz',
-    version='0.1.1',
+    version='0.1.2',
     url='https://github.com/mohanson/pydouz',
     license='WTFPL',
     author='mohanson',
@@ -19,4 +19,9 @@ setuptools.setup(
         'llvmlite',
     ],
     packages=['pydouz'],
+    entry_points={
+        'console_scripts': [
+            'pydouz=pydouz.cmdline:parse',
+        ],
+    }
 )

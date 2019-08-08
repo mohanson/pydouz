@@ -6,4 +6,4 @@ driver = pydouz.driver.User(pydouz.driver.UserConf(
     triple='riscv64-unknown-elf',
 ))
 
-driver.compile('./examples/fib.dz', '/tmp/fib')
+driver.compile('./examples/factorial.dz', '/tmp/factorial')
